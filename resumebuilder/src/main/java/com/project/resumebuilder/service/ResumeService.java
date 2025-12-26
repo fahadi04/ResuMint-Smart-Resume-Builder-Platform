@@ -6,9 +6,11 @@ import com.project.resumebuilder.dto.CreateResumeRequest;
 import com.project.resumebuilder.repository.ResumeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +20,7 @@ public class ResumeService {
     private final AuthService authService;
 
     public Resume createResume(CreateResumeRequest request, Object principalObject) {
+
         //Step 1: Create resume object
         Resume newResume = new Resume();
 
@@ -45,5 +48,60 @@ public class ResumeService {
         newResume.setCertifications(new ArrayList<>());
         newResume.setLanguages(new ArrayList<>());
         newResume.setInterests(new ArrayList<>());
+    }
+
+    public List<Resume> getUserResumes(Object principal) {
+
+        //Step 1: Get the current profile
+        AuthResponse response = authService.getProfile(principal);
+
+        //Step 2: Call the repository finder method
+        List<Resume> resumes = resumeRepository.findByUserIdOrderByUpdatedAtDesc(response.getId());
+
+        //Step 3: Return result
+        return resumes;
+    }
+
+    public Resume getResumeById(String resumeId, Object principal) {
+
+        //Step 1: Get the current profile
+        AuthResponse response = authService.getProfile(principal);
+
+        //Step 2: Call the repo finder method
+        Resume existingResume = resumeRepository.findByUserIdAndId(response.getId(), resumeId)
+                .orElseThrow(() -> new RuntimeException("Resume not found"));
+
+        //Step 3: Return result
+        return existingResume;
+    }
+
+    public Resume updateResume(String resumeId, Resume updatedData, Object principal) {
+
+        //Step 1: Get the current profile
+        AuthResponse response = authService.getProfile(principal);
+
+        //Step 2: Call the repository finder method
+        Resume existingResume = resumeRepository.findByUserIdAndId(response.getId(), resumeId)
+                .orElseThrow(() -> new RuntimeException("Resume not found"));
+
+        //Step 3: Update the new data
+        existingResume.setTitle(updatedData.getTitle());
+        existingResume.setThumbnailLink(updatedData.getThumbnailLink());
+        existingResume.setTemplate(updatedData.getTemplate());
+        existingResume.setProfileInfo(updatedData.getProfileInfo());
+        existingResume.setContactInfo(updatedData.getContactInfo());
+        existingResume.setWorkExperience(updatedData.getWorkExperience());
+        existingResume.setEducation(updatedData.getEducation());
+        existingResume.setSkills(updatedData.getSkills());
+        existingResume.setProjects(updatedData.getProjects());
+        existingResume.setCertifications(updatedData.getCertifications());
+        existingResume.setLanguages(updatedData.getLanguages());
+        existingResume.setInterests(updatedData.getInterests());
+
+        //Step 4: Update the details into database
+        resumeRepository.save(existingResume);
+
+        //Step 5: Return result
+        return existingResume;
     }
 }
