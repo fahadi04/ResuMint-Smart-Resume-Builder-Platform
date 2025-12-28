@@ -4,6 +4,7 @@ import com.project.resumebuilder.document.User;
 import com.project.resumebuilder.dto.AuthResponse;
 import com.project.resumebuilder.dto.LoginRequest;
 import com.project.resumebuilder.dto.RegisterRequest;
+import com.project.resumebuilder.repository.UserRepository;
 import com.project.resumebuilder.service.AuthService;
 import com.project.resumebuilder.service.FileUploadService;
 import jakarta.validation.Valid;
@@ -30,6 +31,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final FileUploadService fileUploadService;
+    private final UserRepository userRepository;
 
     @PostMapping(REGISTER)
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
@@ -79,13 +81,14 @@ public class AuthController {
 
     @GetMapping(PROFILE)
     public ResponseEntity<?> getProfile(Authentication authentication) {
-        //Step 1: Get the principal object
+
         Object principalObject = authentication.getPrincipal();
 
-        //Step 2: Call the service method
+        System.out.println("PRINCIPAL VALUE = " + principalObject);
+        System.out.println("PRINCIPAL CLASS = " + principalObject.getClass());
+
         AuthResponse currentProfile = authService.getProfile(principalObject);
 
-        //Step 3: return the response
         return ResponseEntity.ok(currentProfile);
     }
 

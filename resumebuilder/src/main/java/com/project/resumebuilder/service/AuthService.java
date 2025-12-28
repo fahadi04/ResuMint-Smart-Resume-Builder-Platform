@@ -153,9 +153,12 @@ public class AuthService {
     }
 
     public AuthResponse getProfile(Object principalObject) {
-        User existingUser = (User) principalObject;
+
+        String userId = principalObject.toString();
+
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
         return toResponse(existingUser);
     }
-
-
 }

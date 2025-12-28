@@ -47,9 +47,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
                 if (jwtUtil.validateToken(token) && !jwtUtil.isTokenExpired(token)) {
-                    User user = userRepository.findById(userId).
-                            orElseThrow(() -> new UsernameNotFoundException("User not found"));
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken("user", null, new ArrayList<>());
+
+                    User user = userRepository.findById(userId)
+                            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(userId, null, new ArrayList<>());
+
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
