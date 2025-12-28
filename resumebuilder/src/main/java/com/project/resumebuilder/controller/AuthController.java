@@ -76,7 +76,8 @@ public class AuthController {
         authService.resendVerification(email);
 
         //Step 4: Return the response
-        return ResponseEntity.ok(Map.of("success", true, "message", "Email verification sent"));
+        return ResponseEntity.ok(Map.of("success", true,
+                "message", "Email verification sent"));
     }
 
     @GetMapping(PROFILE)
@@ -84,13 +85,8 @@ public class AuthController {
 
         Object principalObject = authentication.getPrincipal();
 
-        System.out.println("PRINCIPAL VALUE = " + principalObject);
-        System.out.println("PRINCIPAL CLASS = " + principalObject.getClass());
-
         AuthResponse currentProfile = authService.getProfile(principalObject);
 
         return ResponseEntity.ok(currentProfile);
     }
-
-
 }
